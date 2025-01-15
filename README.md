@@ -1,6 +1,6 @@
 # Ignite Gym App
 
-Developed using [React Native](https://reactnative.dev/docs/set-up-your-environment) and Expo.
+Developed using [React Native](https://reactnative.dev/docs/set-up-your-environment) and [Expo(https://docs.expo.dev/)]. Also for our component library: [GlueStackUI](https://gluestack.io/)
 
 # How to run
 
