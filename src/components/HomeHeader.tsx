@@ -21,7 +21,7 @@ export function HomeHeader() {
         </Heading>
       </VStack>
 
-      <Icon as={<LogOut />} color="$gray200" size="xl" />
+      <Icon as={() => <LogOut />} color="$gray200" size="xl" />
     </HStack>
   );
 }

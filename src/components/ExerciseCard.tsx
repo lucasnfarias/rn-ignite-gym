@@ -18,7 +18,7 @@ export function ExerciseCard({ ...rest }: Props) {
         mb="$3"
       >
         <Image
-          source={{ uri: "" }}
+          source={{ uri: "https://github.com/lucasnfarias.png" }}
           alt="image do exercício"
           w="$16"
           h="$16"
@@ -41,7 +41,7 @@ export function ExerciseCard({ ...rest }: Props) {
             3 séries x 12 repetições
           </Text>
 
-          <Icon as={<ChevronRight />} color="$gray300" />
+          <Icon as={() => <ChevronRight />} color="$gray300" />
         </VStack>
       </HStack>
     </TouchableOpacity>

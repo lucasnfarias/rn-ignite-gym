@@ -28,7 +28,7 @@ export function Exercise() {
     <VStack flex={1}>
       <VStack px="$8" bg="$gray600" pt="$12">
         <TouchableOpacity onPress={handleGoBack}>
-          <Icon as={<ArrowLeft />} color="$green500" size="xl" />
+          <Icon as={ArrowLeft} color="$green500" size="xl" />
         </TouchableOpacity>
 
         <HStack
@@ -62,7 +62,7 @@ export function Exercise() {
       >
         <VStack p="$8">
           <Image
-            source={{ uri: "" }}
+            source={{ uri: "https://github.com/lucasnfarias.png" }}
             alt="exercício"
             mb="$3"
             resizeMode="cover"
