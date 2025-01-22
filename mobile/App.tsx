@@ -1,4 +1,5 @@
 import { Loading } from "@/components/Loading";
+import { AuthContextProvider } from "@/contexts/AuthContext";
 import { Routes } from "@/routes";
 import {
   Roboto_400Regular,
@@ -14,13 +15,14 @@ export default function App() {
 
   return (
     <GluestackUIProvider config={config}>
-        <StatusBar
-          barStyle="light-content"
-          backgroundColor="transparent"
-          translucent
-        />
-
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
+      <AuthContextProvider>
         {fontsLoaded ? <Routes /> : <Loading />}
+      </AuthContextProvider>
     </GluestackUIProvider>
   );
 }
