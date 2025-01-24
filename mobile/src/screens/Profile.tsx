@@ -111,8 +111,6 @@ export function Profile() {
           type: `${photoSelected.type}/${fileExtension}`,
         } as any;
 
-        console.log(photoFile);
-
         const userPhotoUploadForm = new FormData();
         userPhotoUploadForm.append("avatar", photoFile);
 
@@ -139,7 +137,23 @@ export function Profile() {
         });
       }
     } catch (error) {
-      console.error(error);
+      const isAppError = error instanceof AppError;
+
+      const title = isAppError
+        ? error.message
+        : "Não foi possível atualizar o avatar.";
+
+      toast.show({
+        placement: "top",
+        render: ({ id }) => (
+          <ToastMessage
+            id={id}
+            action="error"
+            title={title}
+            onClose={() => toast.close(id)}
+          />
+        ),
+      });
     }
   }
 
