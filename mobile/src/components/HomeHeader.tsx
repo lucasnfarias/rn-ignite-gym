@@ -28,7 +28,7 @@ export function HomeHeader() {
       </VStack>
 
       <TouchableOpacity onPress={signOut}>
-        <Icon as={() => <LogOut />} color="$gray200" size="xl" />
+        <Icon as={LogOut} color="$gray200" size="xl" />
       </TouchableOpacity>
     </HStack>
   );
