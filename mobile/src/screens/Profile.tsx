@@ -1,3 +1,4 @@
+import defaultUserPhotoImg from "@/assets/userPhotoDefault.png";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { ScreenHeader } from "@/components/ScreenHeader";
@@ -19,7 +20,7 @@ type FormDataProps = {
   name: string;
   email: string;
   password?: string | null;
-  old_password?: string | null; 
+  old_password?: string | null;
   confirmed_password?: string | null;
 };
 
@@ -51,10 +52,7 @@ const profileSchema = yup.object({
 });
 
 export function Profile() {
-  const [isUpdating, setIsUpdating] = useState(false)
-  const [userPhoto, setUserPhoto] = useState(
-    "https://github.com/lucasnfarias.png"
-  );
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const toast = useToast();
   const { user, updateUserProfile } = useAuth();
@@ -73,19 +71,21 @@ export function Profile() {
 
   async function handleUserPhotoSelect() {
     try {
-      const photoSelected = await ImagePicker.launchImageLibraryAsync({
+      const imagePicker = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
         quality: 1,
         aspect: [4, 4],
         allowsEditing: true,
       });
 
-      if (photoSelected.canceled) return;
+      if (imagePicker.canceled) return;
 
-      const photoURI = photoSelected.assets[0].uri;
+      const photoSelected = imagePicker.assets[0];
 
-      if (photoURI) {
-        const photoInfo = (await FileSystem.getInfoAsync(photoURI)) as {
+      if (photoSelected.uri) {
+        const photoInfo = (await FileSystem.getInfoAsync(
+          photoSelected.uri
+        )) as {
           size: number;
         };
 
@@ -104,7 +104,39 @@ export function Profile() {
           });
         }
 
-        setUserPhoto(photoURI);
+        const fileExtension = photoSelected.uri.split(".").pop();
+        const photoFile = {
+          name: `${user.name}.${fileExtension}`.toLowerCase(),
+          uri: photoSelected.uri,
+          type: `${photoSelected.type}/${fileExtension}`,
+        } as any;
+
+        console.log(photoFile);
+
+        const userPhotoUploadForm = new FormData();
+        userPhotoUploadForm.append("avatar", photoFile);
+
+        const { data } = await api.patch("/users/avatar", userPhotoUploadForm, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        const userUpdated = user;
+        userUpdated.avatar = data.avatar;
+
+        await updateUserProfile(userUpdated);
+
+        toast.show({
+          placement: "top",
+          render: ({ id }) => (
+            <ToastMessage
+              id={id}
+              title="Foto atualizada com sucesso!"
+              onClose={() => toast.close(id)}
+            />
+          ),
+        });
       }
     } catch (error) {
       console.error(error);
@@ -115,12 +147,12 @@ export function Profile() {
     try {
       setIsUpdating(true);
 
-      const userUpdated = user
-      userUpdated.name = data.name
+      const userUpdated = user;
+      userUpdated.name = data.name;
 
       await api.put("/users", data);
 
-      await updateUserProfile(userUpdated)
+      await updateUserProfile(userUpdated);
 
       toast.show({
         placement: "top",
@@ -132,7 +164,6 @@ export function Profile() {
           />
         ),
       });
-
     } catch (error) {
       const isAppError = error instanceof AppError;
 
@@ -163,7 +194,11 @@ export function Profile() {
       <ScrollView contentContainerStyle={{ paddingBottom: 36 }}>
         <Center mt="$6" px="$10">
           <UserPhoto
-            source={{ uri: userPhoto }}
+            source={
+              user.avatar
+                ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` }
+                : defaultUserPhotoImg
+            }
             alt="imagem do usuário"
             size="xl"
           />
