@@ -1,20 +1,54 @@
 import { HistoryCard } from "@/components/HistoryCard";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { Heading, Text, VStack } from "@gluestack-ui/themed";
-import { useState } from "react";
+import { ToastMessage } from "@/components/ToastMessage";
+import { HistoryByDayDTO } from "@/dtos/HistoryByDayDTO";
+import { api } from "@/services/api";
+import { AppError } from "@/utils/AppError";
+import { Heading, Text, useToast, VStack } from "@gluestack-ui/themed";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useState } from "react";
 import { SectionList } from "react-native";
 
 export function History() {
-  const [exercises, setExercises] = useState([
-    {
-      title: "12.01.24",
-      data: ["Puxada frontal", "Levantamento terra"],
-    },
-    {
-      title: "13.01.24",
-      data: ["Puxada frontal"],
-    },
-  ]);
+  const [exercises, setExercises] = useState<HistoryByDayDTO[]>([]);
+  const [isLoading, setIsLoading] = useState(true)
+
+  const toast = useToast()
+
+  async function fetchHistory() {
+    try {
+      setIsLoading(true);
+
+      const { data } = await api.get(`/history`);
+
+      setExercises(data)
+
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+
+      const title = isAppError
+        ? error.message
+        : "Não foi possível carregar o histórico.";
+
+      toast.show({
+        placement: "top",
+        render: ({ id }) => (
+          <ToastMessage
+            id={id}
+            action="error"
+            title={title}
+            onClose={() => toast.close(id)}
+          />
+        ),
+      });
+    } finally {
+      setIsLoading(false);
+    } 
+  }
+
+  useFocusEffect(useCallback(() => {
+    fetchHistory()
+  }, []))
 
   return (
     <VStack flex={1}>
@@ -22,8 +56,8 @@ export function History() {
 
       <SectionList
         sections={exercises}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => <HistoryCard />}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <HistoryCard history={item} />}
         renderSectionHeader={({ section }) => (
           <Heading
             color="$gray200"
