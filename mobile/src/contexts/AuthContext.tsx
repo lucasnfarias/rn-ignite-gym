@@ -42,12 +42,16 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   async function storageUserAndTokenSave(data: {
     user: UserDTO;
     token: string;
+    refresh_token: string;
   }) {
     try {
       setIsLoadingUserStorageData(true);
 
       await storageUserSave(data.user);
-      await storageAuthTokenSave(data.token);
+      await storageAuthTokenSave({
+        token: data.token,
+        refresh_token: data.refresh_token
+      });
     } catch (error) {
       throw error;
     } finally {
@@ -87,7 +91,6 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
     try {
       setUser(userUpdated);
       await storageUserSave(userUpdated);
-
     } catch (error) {
       throw error;
     }
@@ -98,7 +101,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
       setIsLoadingUserStorageData(true);
 
       const userLogged = await storageUserGet();
-      const token = await storageAuthTokenGet();
+      const { token } = await storageAuthTokenGet();
 
       if (token && userLogged.id) {
         updateUserAndToken({ user: userLogged, token });
@@ -113,6 +116,14 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   useEffect(() => {
     loadUserData();
   }, []);
+
+  useEffect(() => {
+    const subscribe = api.registerInterceptTokenManager(signOut);
+
+    return () => {
+      subscribe();
+    };
+  }, [signOut]);
 
   return (
     <AuthContext.Provider
